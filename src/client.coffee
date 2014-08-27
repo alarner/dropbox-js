@@ -1542,9 +1542,15 @@ class Dropbox.Client
   #   outcome of the XHR
   # @return {XMLHttpRequest} the native XHR object used to make the request
   _dispatchXhr: (xhr, callback) ->
-    xhr.setCallback callback
+    xhr.setCallback () ->
+      console.log arguments
+      if arguments[0]
+        if arguments[arguments.length-1].hasOwnProperty('Retry-After')
+          arguments[0].retryAfter = arguments[arguments.length-1]['Retry-After']
+      callback.apply this, arguments
     xhr.onError = @_xhrOnErrorHandler
     xhr.prepare()
+    xhr.reportResponseHeaders()
     nativeXhr = xhr.xhr
     if @onXhr.dispatch xhr
       xhr.send()
