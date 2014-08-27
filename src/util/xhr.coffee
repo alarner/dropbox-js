@@ -551,6 +551,8 @@ class Dropbox.Util.Xhr
 
     if @xhr.status < 200 or @xhr.status >= 300
       apiError = new Dropbox.ApiError @xhr, @method, @url
+      if @xhr.status == Dropbox.ApiError.RATE_LIMITED
+        apiError.retryAfter = @xhr.getResponseHeader('Retry-After')
       if @onError
         @onError apiError, @callback
       else
